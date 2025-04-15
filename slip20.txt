@@ -1,0 +1,286 @@
+Slip 20
+
+Write a program to implement for finding Topological sorting and determine the time complexity for the same
+
+#include <stdio.h>
+
+#include <stdlib.h>
+
+#include <stdbool.h>
+
+
+
+#define V 6 // Number of vertices
+
+
+
+// Structure to represent a node in the adjacency list
+
+struct Node {
+
+    int vertex;
+
+    struct Node* next;
+
+};
+
+
+
+// Structure to represent the adjacency list
+
+struct Graph {
+
+    struct Node** adjList;
+
+    bool* visited;
+
+};
+
+
+
+// Function to create a new node
+
+struct Node* createNode(int v) {
+
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+
+    newNode->vertex = v;
+
+    newNode->next = NULL;
+
+    return newNode;
+
+}
+
+
+
+// Function to create a graph with V vertices
+
+struct Graph* createGraph(int V) {
+
+    struct Graph* graph = (struct Graph*)malloc(sizeof(struct Graph));
+
+    graph->adjList = (struct Node**)malloc(V * sizeof(struct Node*));
+
+    graph->visited = (bool*)malloc(V * sizeof(bool));
+
+
+
+    for (int i = 0; i < V; i++) {
+
+        graph->adjList[i] = NULL;
+
+        graph->visited[i] = false;
+
+    }
+
+
+
+    return graph;
+
+}
+
+
+
+// Function to add an edge to the graph
+
+void addEdge(struct Graph* graph, int src, int dest) {
+
+    // Add an edge from src to dest
+
+    struct Node* newNode = createNode(dest);
+
+    newNode->next = graph->adjList[src];
+
+    graph->adjList[src] = newNode;
+
+}
+
+
+
+// Function to perform Depth First Search (DFS) and store the topological order
+
+void topologicalSortUtil(struct Graph* graph, int v, bool visited[], int* stackIndex, int* stack) {
+
+    visited[v] = true;
+
+
+
+    struct Node* temp = graph->adjList[v];
+
+    while (temp != NULL) {
+
+        if (!visited[temp->vertex])
+
+            topologicalSortUtil(graph, temp->vertex, visited, stackIndex, stack);
+
+        temp = temp->next;
+
+    }
+
+
+
+    stack[(*stackIndex)++] = v;
+
+}
+
+
+
+// Function to perform topological sorting
+
+void topologicalSort(struct Graph* graph) {
+
+    int stack[V];
+
+    int stackIndex = 0;
+
+    bool* visited = (bool*)malloc(V * sizeof(bool));
+
+
+
+    for (int i = 0; i < V; i++)
+
+        visited[i] = false;
+
+
+
+    for (int i = 0; i < V; i++) {
+
+        if (!visited[i])
+
+            topologicalSortUtil(graph, i, visited, &stackIndex, stack);
+
+    }
+
+
+
+    // Print the topological order
+
+    printf("Topological Sorting: ");
+
+    for (int i = V - 1; i >= 0; i--)
+
+        printf("%d ", stack[i]);
+
+    printf("\n");
+
+
+
+    free(visited);
+
+}
+
+
+
+int main() {
+
+    struct Graph* graph = createGraph(V);
+
+    addEdge(graph, 5, 2);
+
+    addEdge(graph, 5, 0);
+
+    addEdge(graph, 4, 0);
+
+    addEdge(graph, 4, 1);
+
+    addEdge(graph, 2, 3);
+
+    addEdge(graph, 3, 1);
+
+
+
+    topologicalSort(graph);
+
+
+
+    return 0;
+
+}
+
+
+
+Write a program to solve N Queens Problem using Backtracking.
+
+#include <stdio.h>
+#include <stdbool.h>
+
+#define N 4 // Number of queens
+
+// Function to print the solution
+void printSolution(int board[N][N]) {
+    for (int i = 0; i < N; i++) {
+        for (int j = 0; j < N; j++)
+            printf("%d ", board[i][j]);
+        printf("\n");
+    }
+}
+
+// Function to check if a queen can be placed on board[row][col]
+bool isSafe(int board[N][N], int row, int col) {
+    int i, j;
+
+    // Check this row on the left side
+    for (i = 0; i < col; i++)
+        if (board[row][i])
+            return false;
+
+    // Check upper diagonal on left side
+    for (i = row, j = col; i >= 0 && j >= 0; i--, j--)
+        if (board[i][j])
+            return false;
+
+    // Check lower diagonal on left side
+    for (i = row, j = col; j >= 0 && i < N; i++, j--)
+        if (board[i][j])
+            return false;
+
+    return true;
+}
+
+// Recursive function to solve N Queens problem
+bool solveNQUtil(int board[N][N], int col) {
+    // Base case: If all queens are placed, return true
+    if (col >= N)
+        return true;
+
+    // Consider this column and try placing this queen in all rows one by one
+    for (int i = 0; i < N; i++) {
+        // Check if the queen can be placed on board[i][col]
+        if (isSafe(board, i, col)) {
+            // Place this queen in board[i][col]
+            board[i][col] = 1;
+
+            // Recur to place rest of the queens
+            if (solveNQUtil(board, col + 1))
+                return true;
+
+            // If placing queen in board[i][col] doesn't lead to a solution, then remove it
+            board[i][col] = 0;
+        }
+    }
+
+    // If the queen can't be placed in any row in this column, return false
+    return false;
+}
+
+// Function to solve the N Queens problem
+bool solveNQ() {
+    int board[N][N] = {{0, 0, 0, 0},
+                       {0, 0, 0, 0},
+                       {0, 0, 0, 0},
+                       {0, 0, 0, 0}};
+
+    if (solveNQUtil(board, 0) == false) {
+        printf("Solution does not exist\n");
+        return false;
+    }
+
+    printSolution(board);
+    return true;
+}
+
+int main() {
+    solveNQ();
+    return 0;
+}
